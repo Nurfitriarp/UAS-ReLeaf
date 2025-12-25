@@ -1,3 +1,76 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "psychiatrist-1",
+      "description": "Portrait of Dr. Evelyn Reed",
+      "imageUrl": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxkb2N0b3IlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjY1OTQyMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "doctor portrait"
+    },
+    {
+      "id": "psychiatrist-2",
+      "description": "Portrait of Dr. Samuel Chen",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjY1ODA2ODJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "psychiatrist-3",
+      "description": "Portrait of Dr. Anika Sharma",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjY2NTIxODN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "psychiatrist-4",
+      "description": "Portrait of Dr. Marcus Thorne",
+      "imageUrl": "https://images.unsplash.com/photo-1562788869-4ed32648eb72?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcm9mZXNzaW9uYWwlMjBtYW58ZW58MHx8fHwxNzY2NTcyODAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional man"
+    },
+    {
+      "id": "article-1",
+      "description": "A calm and serene natural landscape",
+      "imageUrl": "https://images.unsplash.com/photo-1615134732800-ca7ef7a3388c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzZXJlbmUlMjBsYW5kc2NhcGV8ZW58MHx8fHwxNzY2NjQyNzQxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "serene landscape"
+    },
+    {
+      "id": "article-2",
+      "description": "A person practicing mindfulness meditation",
+      "imageUrl": "https://images.unsplash.com/photo-1731171060382-0ed37122ad60?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWVkaXRhdGlvbiUyMHlvZ2F8ZW58MHx8fHwxNzY2NjcxNDY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "meditation yoga"
+    },
+    {
+      "id": "article-3",
+      "description": "Illustration of a healthy brain",
+      "imageUrl": "https://images.unsplash.com/photo-1714925240695-831c2174dce6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxicmFpbiUyMGlsbHVzdHJhdGlvbnxlbnwwfHx8fDE3NjY2NzE0NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "brain illustration"
+    },
+    {
+      "id": "article-4",
+      "description": "A person journaling in a notebook",
+      "imageUrl": "https://images.unsplash.com/photo-1631536121875-28e737e31f78?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxqb3VybmFsaW5nJTIwd3JpdGV8ZW58MHx8fHwxNzY2NjcxNDY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "journaling write"
+    },
+    {
+      "id": "community-1",
+      "description": "A group of people supporting each other",
+      "imageUrl": "https://images.unsplash.com/photo-1604881991720-f91add269bed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdXBwb3J0JTIwZ3JvdXB8ZW58MHx8fHwxNzY2NjcxNDY0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "support group"
+    },
+    {
+      "id": "community-2",
+      "description": "People participating in a group activity",
+      "imageUrl": "https://images.unsplash.com/photo-1758798469179-dea5d63257ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxncm91cCUyMGFjdGl2aXR5fGVufDB8fHx8MTc2NjY3MTQ2NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "group activity"
+    },
+    {
+      "id": "community-3",
+      "description": "A welcoming and inclusive community space",
+      "imageUrl": "https://images.unsplash.com/photo-1764690022134-381834c430e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb21tdW5pdHklMjBzcGFjZXxlbnwwfHx8fDE3NjY2NzE0NjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "community space"
+    },
+    {
+      "id": "user-avatar",
+      "description": "Default user avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1623605931891-d5b95ee98459?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwZXJzb24lMjBzbWlsaW5nfGVufDB8fHx8MTc2NjY0MDc3NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person smiling"
+    }
+  ]
 }
