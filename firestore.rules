@@ -1,0 +1,170 @@
+/**
+ * @file firestore.rules
+ * @description Security rules for the ReLeaf Firestore database.
+ *
+ * Core Philosophy:
+ * This ruleset implements a hybrid security model to meet diverse application needs.
+ * It enforces strict user ownership for all private data, a collaborative access model for shared spaces like communities,
+ * and a public-read model for globally accessible content like articles. The primary goal is to ensure users have absolute
+ * control over their own data while enabling secure collaboration and content discovery.
+ *
+ * Data Structure:
+ * The data is structured to isolate different security contexts. All personal user information
+ * (profiles, appointments, OAuth tokens) is stored under a path keyed by the user's ID (e.g., /users/{userId}, /google_oauth/{userId}).
+ * This path-based ownership is the cornerstone of the security model. Public and collaborative data, such as articles
+ * and communities, reside in top-level collections to facilitate simpler and more performant queries.
+ *
+ * Key Security Decisions:
+ * - User Enumeration is Forbidden: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy.
+ * - Default to Private: All user-specific subcollections default to owner-only access.
+ * - Ownership is Immutable: Once a document's ownership (e.g., a creatorId) is set, it cannot be changed.
+ * - Collaborative Access via Denormalization: Community access is managed by a `memberIds` array directly on the community
+ *   document, avoiding costly and insecure cross-document reads in rules.
+ * - Structural Segregation: Public data (`/articles`) is kept separate from private data (`/users`) and collaborative data (`/communities`),
+ *   ensuring that security rules for one collection type do not inadvertently affect another.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helper Functions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Returns true if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the authenticated user's UID matches the provided userId.
+     * This is the foundation for the user-ownership model.
+     * @param userId The user ID to check against the request's auth UID.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * Returns true if the document being accessed already exists.
+     * Used in update/delete operations to prevent modifying non-existent data.
+     */
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    // -------------------------------------------------------------------------
+    // User Data (/users)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to a user's own profile document. A user can create,
+     * read, update, and delete their own profile, but cannot see or list others.
+     * @path /users/{userId}
+     * @allow A user with UID 'user_abc' can create the document at `/users/user_abc`. (create)
+     * @deny A user with UID 'user_xyz' cannot read the document at `/users/user_abc`. (get)
+     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
+      allow delete: if isOwner(userId) && isExistingDoc();
+
+      /**
+       * @description Controls access to a psychiatrist's extended profile, which is a
+       * subcollection of their main user profile. Access is inherited from the parent user.
+       * @path /users/{userId}/psychiatristProfile/{profileId}
+       * @allow User 'user_abc' can create a document at `/users/user_abc/psychiatristProfile/profile_123`. (create)
+       * @deny User 'user_xyz' cannot list documents at `/users/user_abc/psychiatristProfile`. (list)
+       * @principle Enforces strict ownership for nested user data.
+       */
+      match /psychiatristProfile/{profileId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+        allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.userProfileId == resource.data.userProfileId;
+        allow delete: if isOwner(userId) && isExistingDoc();
+      }
+
+      /**
+       * @description Controls access to appointments. The path implies ownership by the
+       * patient (`userId`), but access is granted to both the patient and the psychiatrist
+       * involved in the appointment.
+       * @path /users/{userId}/appointments/{appointmentId}
+       * @allow The psychiatrist ('psych_xyz') can read an appointment at `/users/patient_abc/appointments/appt_123` if `resource.data.psychiatristId == 'psych_xyz'`. (get)
+       * @deny A random user ('user_qwe') cannot delete an appointment they are not part of. (delete)
+       * @principle Implements shared access between two specific roles (patient and psychiatrist) for a document.
+       */
+      match /appointments/{appointmentId} {
+        allow get: if isExistingDoc() && (request.auth.uid == resource.data.patientId || request.auth.uid == resource.data.psychiatristId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.patientId == userId;
+        allow update: if isExistingDoc() && (request.auth.uid == resource.data.patientId || request.auth.uid == resource.data.psychiatristId) && request.resource.data.patientId == resource.data.patientId && request.resource.data.psychiatristId == resource.data.psychiatristId;
+        allow delete: if isExistingDoc() && (request.auth.uid == resource.data.patientId || request.auth.uid == resource.data.psychiatristId);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Public Content (/articles)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to articles. Articles are public and can be read by anyone,
+     * including unauthenticated users. Write operations are currently disabled.
+     * @path /articles/{articleId}
+     * @allow Any user, signed in or not, can read an article document. (get)
+     * @deny An authenticated user cannot create a new article. (create)
+     * @principle Provides public read access for global content while awaiting a schema update for secure writes.
+     */
+    match /articles/{articleId} {
+      allow get, list: if true;
+      // CRITICAL: Cannot implement owner-only writes. The 'Article' entity is missing an 'ownerId' or 'authorId' field that contains the author's UID.
+      // The current 'author' field is a generic string and cannot be used for secure authorization checks.
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field (e.g., authorId).
+    }
+
+    // -------------------------------------------------------------------------
+    // Collaborative Data (/communities)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to community documents. Any signed-in user can list
+     * communities to discover them, but only members can read the full details. Only the
+     * moderator can modify or delete a community.
+     * @path /communities/{communityId}
+     * @allow A user whose UID is in the `memberIds` array can read the community document. (get)
+     * @deny A user who is not the moderator cannot update the community's description. (update)
+     * @principle Implements a role-based access model (member/moderator) using denormalized data on the document itself.
+     */
+    match /communities/{communityId} {
+      allow get: if isExistingDoc() && isSignedIn() && request.auth.uid in resource.data.memberIds;
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.moderatorId == request.auth.uid && request.auth.uid in request.resource.data.memberIds;
+      allow update: if isExistingDoc() && request.auth.uid == resource.data.moderatorId && request.resource.data.moderatorId == resource.data.moderatorId;
+      allow delete: if isExistingDoc() && request.auth.uid == resource.data.moderatorId;
+    }
+
+    // -------------------------------------------------------------------------
+    // Sensitive Auth Data (/google_oauth)
+    // -------------------------------------------------------------------------
+
+    /**
+     * @description Controls access to sensitive Google OAuth tokens. Access is strictly
+     * limited to the user who owns the tokens. No other user can read, list, or modify this data.
+     * @path /google_oauth/{userId}
+     * @allow A user with UID 'user_abc' can create their own token document at `/google_oauth/user_abc`. (create)
+     * @deny A user with UID 'user_xyz' cannot read the document at `/google_oauth/user_abc`. (get)
+     * @principle Enforces strict, non-transferable ownership for highly sensitive user credentials.
+     */
+    match /google_oauth/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.userId == resource.data.userId;
+      allow delete: if isOwner(userId) && isExistingDoc();
+    }
+  }
+}
