@@ -11,18 +11,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth, useUser } from '@/firebase';
 
 export function UserNav() {
   const router = useRouter();
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+  const auth = useAuth();
+  const { user } = useUser();
 
-  const handleLogout = () => {
-    // Simulate logout
+  const handleLogout = async () => {
+    await auth.signOut();
     router.push('/');
   };
+
+  const getInitials = (name?: string | null) => {
+    if (!name) return 'U';
+    return name.split(' ').map((n) => n[0]).join('');
+  }
 
   return (
     <DropdownMenu>
@@ -30,20 +36,19 @@ export function UserNav() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
             <AvatarImage
-              src={userAvatar?.imageUrl}
-              alt="User Avatar"
-              data-ai-hint={userAvatar?.imageHint}
+              src={user?.photoURL || undefined}
+              alt={user?.displayName || "User Avatar"}
             />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Demo User</p>
+            <p className="text-sm font-medium leading-none">{user?.displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              user@example.com
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>

@@ -1,11 +1,9 @@
+'use client';
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-
-export const metadata: Metadata = {
-  title: 'ReLeaf',
-  description: 'Find your peace, one leaf at a time.',
-};
+import { FirebaseClientProvider } from '@/firebase';
 
 export default function RootLayout({
   children,
@@ -23,7 +21,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        {children}
+        <FirebaseClientProvider>{children}</FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

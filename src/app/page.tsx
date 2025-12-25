@@ -3,15 +3,39 @@
 import { Button } from '@/components/ui/button';
 import { LeafLogo } from '@/components/icons/leaf-logo';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/firebase';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useEffect } from 'react';
+import { useUser } from '@/firebase';
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
 
-  const handleLogin = () => {
-    // In a real application, you would handle Google OAuth here.
-    // For this demonstration, we'll simulate a login and redirect.
-    router.push('/dashboard');
+  useEffect(() => {
+    if (user && !isUserLoading) {
+      router.push('/dashboard');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error during sign-in:', error);
+    }
   };
+
+  if (isUserLoading || user) {
+    return (
+      <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">
+        <LeafLogo className="h-24 w-24 animate-pulse text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background p-4">

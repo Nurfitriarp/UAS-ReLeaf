@@ -1,3 +1,5 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
@@ -8,6 +10,7 @@ import {
   HeartHandshake,
   Bot,
   PanelLeft,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,8 +20,20 @@ import {
 } from '@/components/ui/sheet';
 import { UserNav } from '@/components/layout/user-nav';
 import { LeafLogo } from '@/components/icons/leaf-logo';
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/');
+    }
+  }, [user, isUserLoading, router]);
+
   const navItems = [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/psychiatrists', icon: Users, label: 'Psychiatrists' },
@@ -27,6 +42,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: '/dashboard/community', icon: HeartHandshake, label: 'Community' },
     { href: '/dashboard/profile', icon: Feather, label: 'Profile' },
   ];
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -14,8 +16,11 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useUser } from '@/firebase';
 
 export default function DashboardPage() {
+  const { user } = useUser();
+
   const featureCards = [
     {
       title: 'Find a Psychiatrist',
@@ -47,7 +52,7 @@ export default function DashboardPage() {
     <div className="flex w-full flex-col">
       <div className="space-y-2 mb-8">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Welcome back, User
+          Welcome back, {user?.displayName?.split(' ')[0] || 'User'}
         </h1>
         <p className="text-muted-foreground">
           Here's your mental wellness dashboard.
