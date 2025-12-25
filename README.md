@@ -1,1 +1,4 @@
-# Project Keamanan Informasi
+# PROJECT UAS PENGANTAR KEAMANAN INFORMASI
+# NAMA: Nur Fitria Rahmadani Putri
+# NIM: 23083000156
+# KELAS: 5C
