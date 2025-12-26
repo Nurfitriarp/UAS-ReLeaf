@@ -19,8 +19,8 @@ function CommunityCard({ community }: { community: Community }) {
         <Image
           src={community.imageUrl}
           alt={community.name}
-          layout="fill"
-          objectFit="cover"
+          fill
+          className="object-cover"
           data-ai-hint={community.imageHint}
         />
       </div>

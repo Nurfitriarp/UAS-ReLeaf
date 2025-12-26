@@ -19,8 +19,8 @@ function ArticleCard({ article }: { article: Article }) {
         <Image
           src={article.imageUrl}
           alt={article.title}
-          layout="fill"
-          objectFit="cover"
+          fill
+          className="object-cover"
           data-ai-hint={article.imageHint}
         />
       </div>
